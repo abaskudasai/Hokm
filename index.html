@@ -1,0 +1,1912 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>بازی حکم</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@500;600;700;800;900&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
+    <!-- لینک به فایل مانیفست -->
+    <link rel="manifest" href="/hokm/manifest.json">
+    <link rel="shortcut icon" href="/hokm/favicon.ico" type="image/x-icon">
+
+    <!-- تنظیم رنگ نوار آدرس مرورگر موبایل (طبق مانیفست شما) -->
+    <meta name="theme-color" content="#0a0f0d" media="(prefers-color-scheme: dark)">
+    <meta name="theme-color" content="#f4f0e6" media="(prefers-color-scheme: light)">
+
+    <!-- آیکون برای گوشی‌های آیفون (iOS فایل مانیفست را کامل نمی‌خواند) -->
+    <link rel="apple-touch-icon" href="/hokm/icon-192.png">
+
+    <style>
+        :root {
+            --bg-0: #0a0f0d;
+            --bg-1: #101613;
+            --bg-2: #171f1b;
+            --glass: rgba(255,255,255,0.04);
+            --glass-strong: rgba(255,255,255,0.07);
+            --border-soft: rgba(212,168,87,0.18);
+            --ink: #ede7da;
+            --ink-muted: rgba(237,231,218,0.62);
+            --ink-faint: rgba(237,231,218,0.38);
+            --gold: #d4a857;
+            --gold-2: #f0d18e;
+            --gold-deep: #9c7431;
+            --emerald: #33d9a6;
+            --emerald-deep: #16a883;
+            --ruby: #e1495f;
+            --ruby-deep: #b23349;
+            --felt-1: #123626;
+            --felt-2: #0a2018;
+            --felt-3: #061510;
+            --shadow-lg: 0 20px 50px rgba(0,0,0,0.55);
+            --shadow-md: 0 10px 26px rgba(0,0,0,0.4);
+            --card-face: #f7f3ea;
+            --card-ink-black: #201b14;
+            --card-ink-red: #b3273e;
+            --radius-lg: 22px;
+            --radius-md: 14px;
+            --radius-sm: 9px;
+            --font-ui: 'Vazirmatn', 'Segoe UI', Tahoma, sans-serif;
+            --font-display: 'Vazirmatn', 'Segoe UI', Tahoma, sans-serif;
+            --font-rank: 'Playfair Display', 'Vazirmatn', serif;
+        }
+
+        @media (prefers-color-scheme: light) {
+            :root {
+                --bg-0: #f4f0e6;
+                --bg-1: #ece6d8;
+                --bg-2: #ffffff;
+                --glass: rgba(255,255,255,0.55);
+                --glass-strong: rgba(255,255,255,0.8);
+                --border-soft: rgba(184,134,62,0.28);
+                --ink: #241d13;
+                --ink-muted: rgba(36,29,19,0.64);
+                --ink-faint: rgba(36,29,19,0.42);
+                --gold: #a97a2f;
+                --gold-2: #c99a4a;
+                --gold-deep: #7c5620;
+                --emerald: #1d9c79;
+                --emerald-deep: #157e61;
+                --ruby: #c22c46;
+                --ruby-deep: #9c2138;
+                --felt-1: #1c4a35;
+                --felt-2: #123526;
+                --felt-3: #0a2419;
+                --shadow-lg: 0 20px 44px rgba(60,45,20,0.18);
+                --shadow-md: 0 8px 20px rgba(60,45,20,0.14);
+                --card-face: #fffdf8;
+                --card-ink-black: #1c1710;
+                --card-ink-red: #a3243b;
+            }
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: var(--font-ui);
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html, body {
+            height: 100%;
+            overflow: hidden;
+            touch-action: manipulation;
+        }
+
+        body {
+            background: radial-gradient(ellipse 120% 90% at 50% -10%, var(--bg-1), var(--bg-0) 60%);
+            color: var(--ink);
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; }
+        }
+
+        .game-wrapper {
+            height: 100vh;
+            height: 100dvh;
+            display: flex;
+            flex-direction: column;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: max(8px, env(safe-area-inset-top)) 10px 8px;
+            gap: 7px;
+            position: relative;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 11px 16px;
+            background: var(--glass);
+            backdrop-filter: blur(18px) saturate(140%);
+            -webkit-backdrop-filter: blur(18px) saturate(140%);
+            border: 1px solid var(--border-soft);
+            border-radius: var(--radius-md);
+            flex-shrink: 0;
+            box-shadow: var(--shadow-md);
+        }
+
+        .title {
+            font-family: var(--font-display);
+            font-size: 1.25rem;
+            font-weight: 800;
+            letter-spacing: 0.3px;
+            color: var(--gold-2);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-shadow: 0 0 18px rgba(212,168,87,0.25);
+        }
+        .title i { color: var(--gold); }
+
+        .scores {
+            display: flex;
+            gap: 8px;
+            font-size: 1rem;
+        }
+
+        .score-box {
+            padding: 6px 13px;
+            border-radius: 999px;
+            background: var(--glass-strong);
+            font-weight: 700;
+            font-size: 0.95rem;
+            color: var(--ink);
+            border: 1.5px solid transparent;
+        }
+
+        .score-box.us { border-color: var(--emerald); box-shadow: 0 0 12px rgba(51,217,166,0.18); }
+        .score-box.them { border-color: var(--ruby); box-shadow: 0 0 12px rgba(225,73,95,0.18); }
+
+        .info-bar {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            padding: 8px;
+            background: var(--glass);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border: 1px solid var(--border-soft);
+            border-radius: var(--radius-sm);
+            font-size: 0.86rem;
+            flex-shrink: 0;
+            font-weight: 600;
+            flex-wrap: wrap;
+        }
+
+        .info-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            background: rgba(255,255,255,0.05);
+            padding: 5px 9px;
+            border-radius: 8px;
+            color: var(--ink-muted);
+        }
+
+        .info-item i { font-size: 0.92rem; }
+        .info-item .icon-us { color: var(--emerald); }
+        .info-item .icon-them { color: var(--ruby); }
+        .info-item .icon-trump { color: var(--gold); }
+        .info-item .icon-round { color: var(--gold-2); }
+
+        .opponents-row {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            flex-shrink: 0;
+            padding: 4px 0;
+        }
+
+        .opponent {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .opponent-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            position: relative;
+            border: 1.5px solid rgba(255,255,255,0.12);
+            box-shadow: inset 0 2px 6px rgba(0,0,0,0.3), 0 4px 10px rgba(0,0,0,0.35);
+            transition: box-shadow 0.3s ease;
+        }
+
+        .opponent-avatar.partner { background: linear-gradient(150deg, var(--emerald-deep), #0d3a2c); color: #eafff8; }
+        .opponent-avatar.enemy { background: linear-gradient(150deg, var(--ruby-deep), #4a1522); color: #ffeef1; }
+
+        .opponent-name { font-size: 0.82rem; font-weight: 600; color: var(--ink-muted); }
+
+        .opponent.active .opponent-avatar {
+            box-shadow: 0 0 0 3px var(--emerald), 0 0 22px rgba(51,217,166,0.55);
+            animation: turnPulse 1.6s ease-in-out infinite;
+        }
+
+        @keyframes turnPulse {
+            0%, 100% { box-shadow: 0 0 0 3px var(--emerald), 0 0 16px rgba(51,217,166,0.4); }
+            50% { box-shadow: 0 0 0 3px var(--emerald), 0 0 26px rgba(51,217,166,0.75); }
+        }
+
+        .crown-badge {
+            position: absolute;
+            top: -7px;
+            right: -6px;
+            color: var(--gold);
+            font-size: 1rem;
+            filter: drop-shadow(0 2px 5px rgba(0,0,0,0.6));
+        }
+
+        .trump-indicator {
+            position: absolute;
+            bottom: -7px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, var(--gold-2), var(--gold-deep));
+            color: #241a08;
+            font-size: 0.72rem;
+            padding: 2px 7px;
+            border-radius: 8px;
+            font-weight: 800;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+        }
+
+        .play-area {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 0;
+        }
+
+        .table {
+            width: 95%;
+            max-width: 320px;
+            aspect-ratio: 1.3;
+            background:
+                radial-gradient(ellipse at center, var(--felt-1) 0%, var(--felt-2) 65%, var(--felt-3) 100%);
+            border-radius: 50%;
+            position: relative;
+            box-shadow:
+                inset 0 0 50px rgba(0,0,0,0.55),
+                inset 0 0 0 1px rgba(255,255,255,0.05),
+                0 0 0 3px var(--gold-deep),
+                0 0 0 6px rgba(10,15,13,0.6),
+                0 0 0 9px var(--gold),
+                var(--shadow-lg);
+        }
+
+        .table::before {
+            content: '';
+            position: absolute;
+            inset: 14%;
+            border-radius: 50%;
+            border: 1px dashed rgba(212,168,87,0.14);
+            pointer-events: none;
+        }
+
+        .card-slot {
+            position: absolute;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .card-slot.top { top: 6%; left: 50%; transform: translateX(-50%); }
+        .card-slot.bottom { bottom: 6%; left: 50%; transform: translateX(-50%); }
+        .card-slot.left { left: 8%; top: 50%; transform: translateY(-50%); }
+        .card-slot.right { right: 8%; top: 50%; transform: translateY(-50%); }
+
+        .player-section {
+            flex-shrink: 0;
+            padding: 12px;
+            background: var(--glass-strong);
+            backdrop-filter: blur(20px) saturate(140%);
+            -webkit-backdrop-filter: blur(20px) saturate(140%);
+            border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+            border-top: 1px solid var(--border-soft);
+            margin: 0 -10px -8px -10px;
+            padding-bottom: calc(12px + env(safe-area-inset-bottom));
+            box-shadow: 0 -10px 30px rgba(0,0,0,0.25);
+        }
+
+        .player-info {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 9px;
+        }
+
+        .player-avatar {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background: linear-gradient(150deg, var(--gold), var(--gold-deep));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            font-size: 1.1rem;
+            color: #241a08;
+            box-shadow: inset 0 2px 5px rgba(255,255,255,0.3), 0 4px 10px rgba(0,0,0,0.35);
+        }
+
+        .player-name { font-weight: 700; font-size: 1.02rem; color: var(--ink); }
+
+        .player-section.active .player-avatar {
+            box-shadow: 0 0 0 3px var(--emerald), 0 0 22px rgba(51,217,166,0.55);
+            animation: turnPulse 1.6s ease-in-out infinite;
+        }
+
+        .hand {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 6px;
+            padding: 4px;
+        }
+
+        /* کارت‌ها */
+        .card {
+            width: 54px;
+            height: 92px;
+            border-radius: 10px;
+            background: linear-gradient(160deg, var(--card-face) 0%, #ece5d3 100%);
+            box-shadow: var(--shadow-md);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            padding: 4px 0;
+            cursor: pointer;
+            transition: transform 0.18s cubic-bezier(.2,.8,.3,1.3), box-shadow 0.18s ease;
+            flex-shrink: 0;
+            position: relative;
+            border: 1px solid rgba(0,0,0,0.08);
+            overflow: hidden;
+        }
+
+        .card::after {
+            content: '';
+            position: absolute;
+            inset: 3px;
+            border: 1px solid rgba(0,0,0,0.06);
+            border-radius: 7px;
+            pointer-events: none;
+        }
+
+        .card.disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .card.selected {
+            transform: translateY(-16px);
+            box-shadow: 0 18px 28px rgba(0,0,0,0.4), 0 0 0 2.5px var(--emerald), 0 0 18px rgba(51,217,166,0.35);
+        }
+
+        .card.trump {
+            border: 2px solid var(--gold);
+            box-shadow: var(--shadow-md), 0 0 10px rgba(212,168,87,0.35);
+        }
+
+        .card-rank {
+            font-family: var(--font-rank);
+            font-size: 1.05rem;
+            font-weight: 800;
+            line-height: 1;
+        }
+
+        .card-rank.bottom {
+            transform: rotate(180deg);
+        }
+
+        .card-suit-center {
+            font-size: 1.75rem;
+            line-height: 1;
+        }
+
+        .card.red .card-rank, .card.red .card-suit-center { color: var(--card-ink-red); }
+        .card.black .card-rank, .card.black .card-suit-center { color: var(--card-ink-black); }
+
+        /* کارت‌های روی میز - کوچکتر */
+        .table-card {
+            width: 68px;
+            height: 92px;
+            padding: 3px 0;
+            animation: dealCard 0.22s cubic-bezier(.2,.8,.3,1.2);
+        }
+
+        .table-card .card-rank { font-size: 0.88rem; }
+        .table-card .card-suit-center { font-size: 1.35rem; }
+
+        @keyframes dealCard {
+            from { transform: scale(0.4) translateY(10px); opacity: 0; }
+            to { transform: scale(1) translateY(0); opacity: 1; }
+        }
+
+        .modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(4,6,5,0.72);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.22s ease;
+            padding: 20px;
+        }
+
+        .modal.show { opacity: 1; visibility: visible; }
+
+        .modal-box {
+            background: linear-gradient(165deg, var(--bg-2), var(--bg-1));
+            border-radius: var(--radius-lg);
+            padding: 26px 24px;
+            max-width: 360px;
+            width: 100%;
+            text-align: center;
+            border: 1px solid var(--border-soft);
+            box-shadow: var(--shadow-lg), 0 0 0 1px rgba(212,168,87,0.08) inset;
+        }
+
+        .modal-title {
+            font-family: var(--font-display);
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: var(--gold-2);
+            margin-bottom: 14px;
+        }
+
+        .trump-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .trump-btn {
+            padding: 15px;
+            border-radius: var(--radius-md);
+            border: 2px solid transparent;
+            font-size: 1.7rem;
+            cursor: pointer;
+            transition: all 0.18s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .trump-btn:active { transform: scale(0.94); }
+        .trump-btn.spades, .trump-btn.clubs { background: linear-gradient(160deg, #f2efe6, #dcd7c8); color: var(--card-ink-black); }
+        .trump-btn.hearts, .trump-btn.diamonds { background: linear-gradient(160deg, #fbe2e6, #f3c7cd); color: var(--card-ink-red); }
+        .trump-btn.special {
+            grid-column: span 2;
+            background: linear-gradient(135deg, var(--emerald-deep), #0d3a2c);
+            color: #eafff8;
+            font-size: 1.05rem;
+        }
+        .trump-btn:hover, .trump-btn:focus-visible { border-color: var(--gold); outline: none; }
+        .trump-label { font-size: 0.82rem; font-weight: 700; }
+
+        .preview-cards {
+            display: flex;
+            justify-content: center;
+            gap: 6px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .preview-cards .card {
+            width: 68px;
+            height: 92px;
+            cursor: default;
+            padding: 3px 0;
+        }
+
+        .preview-cards .card .card-rank { font-size: 0.88rem; }
+        .preview-cards .card .card-suit-center { font-size: 1.35rem; }
+
+        .btn {
+            padding: 13px 34px;
+            border-radius: 999px;
+            border: none;
+            background: linear-gradient(135deg, var(--gold-2), var(--gold-deep));
+            color: #241a08;
+            font-weight: 800;
+            font-size: 1.05rem;
+            cursor: pointer;
+            margin-top: 14px;
+            box-shadow: 0 8px 22px rgba(212,168,87,0.28);
+            transition: transform 0.15s ease;
+        }
+
+        .btn:active { transform: scale(0.95); }
+        .btn:focus-visible { outline: 2px solid var(--emerald); outline-offset: 2px; }
+        .btn.secondary {
+            background: transparent;
+            color: var(--ink-muted);
+            border: 1.5px solid rgba(255,255,255,0.18);
+            box-shadow: none;
+            margin-right: 10px;
+        }
+
+        .winner-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            background: linear-gradient(135deg, var(--gold-2), var(--gold-deep));
+            color: #241a08;
+            padding: 18px 38px;
+            border-radius: var(--radius-md);
+            font-size: 1.3rem;
+            font-weight: 800;
+            z-index: 999;
+            transition: transform 0.25s cubic-bezier(.2,.8,.3,1.3);
+            box-shadow: 0 14px 40px rgba(0,0,0,0.45);
+        }
+
+        .winner-popup.show { transform: translate(-50%, -50%) scale(1); }
+
+        .start-screen {
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(ellipse 120% 80% at 50% 15%, var(--felt-1) 0%, var(--bg-0) 70%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            padding: max(20px, env(safe-area-inset-top)) 20px max(20px, env(safe-area-inset-bottom));
+        }
+
+        .start-screen.hidden { display: none; }
+
+        .logo {
+            font-size: 3.6rem;
+            margin-bottom: 18px;
+            display: flex;
+            gap: 14px;
+        }
+
+        .logo span {
+            display: inline-block;
+            filter: drop-shadow(0 4px 14px rgba(0,0,0,0.5));
+            opacity: 0;
+            animation: logoRise 0.7s cubic-bezier(.2,.8,.3,1.2) forwards;
+        }
+        .logo span:nth-child(1) { color: var(--ink); animation-delay: 0.05s; }
+        .logo span:nth-child(2) { color: var(--ruby); animation-delay: 0.16s; }
+        .logo span:nth-child(3) { color: var(--ruby); animation-delay: 0.27s; }
+        .logo span:nth-child(4) { color: var(--ink); animation-delay: 0.38s; }
+
+        @keyframes logoRise {
+            from { opacity: 0; transform: translateY(14px) scale(0.85); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .start-title {
+            font-family: var(--font-display);
+            font-size: 3rem;
+            font-weight: 900;
+            color: var(--gold-2);
+            margin-bottom: 6px;
+            letter-spacing: 1px;
+            text-shadow: 0 0 30px rgba(212,168,87,0.3);
+        }
+        .start-subtitle { color: var(--ink-muted); margin-bottom: 42px; font-size: 1.1rem; font-weight: 600; }
+
+        .start-btn {
+            padding: 18px 58px;
+            font-size: 1.25rem;
+            font-weight: 800;
+            border-radius: 999px;
+            border: none;
+            background: linear-gradient(135deg, var(--gold-2), var(--gold-deep));
+            color: #241a08;
+            cursor: pointer;
+            box-shadow: 0 10px 34px rgba(212,168,87,0.35);
+            transition: transform 0.15s ease;
+        }
+
+        .start-btn:active { transform: scale(0.95); }
+        .start-btn:focus-visible { outline: 2px solid var(--emerald); outline-offset: 3px; }
+
+        .hidden { display: none !important; }
+
+        @media (max-height: 700px) {
+            .card { width: 70px; height: 94px; }
+            .card-rank { font-size: 0.95rem; }
+            .card-suit-center { font-size: 1.5rem; }
+            .table-card { width: 70px; height: 94px; }
+            .table-card .card-rank { font-size: 0.8rem; }
+            .table-card .card-suit-center { font-size: 1.2rem; }
+            .table { max-width: 280px; }
+            .opponent-avatar { width: 42px; height: 42px; }
+            .info-bar { font-size: 0.85rem; gap: 8px; }
+        }
+
+        @media (min-width: 420px) and (min-height: 750px) {
+            .card { width: 58px; height: 82px; }
+            .card-rank { font-size: 1.2rem; }
+            .card-suit-center { font-size: 2rem; }
+            .table-card { width: 52px; height: 72px; }
+            .table-card .card-rank { font-size: 1rem; }
+            .table-card .card-suit-center { font-size: 1.6rem; }
+        }
+
+        /* پی‌سی و صفحه‌های بزرگ */
+        @media (min-width: 700px) {
+            body {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                overflow: auto;
+            }
+            html, body { height: 100%; }
+            .game-wrapper {
+                max-width: 460px;
+                height: 92vh;
+                max-height: 900px;
+                border-radius: 28px;
+                border: 1px solid var(--border-soft);
+                box-shadow: var(--shadow-lg), 0 0 120px rgba(212,168,87,0.06);
+                padding: 16px 14px 14px;
+            }
+            .table { max-width: 340px; }
+            .card { width: 58px; height: 96px; }
+            .card-suit-center { font-size: 1.9rem; }
+            .start-screen { position: fixed; }
+        }
+        /* ---------- شیشه‌ی مایع (Liquid Glass) ---------- */
+        .header, .info-bar, .player-section, .modal-box {
+            position: relative;
+            isolation: isolate;
+        }
+        .header::before, .info-bar::before, .player-section::before, .modal-box::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            background: linear-gradient(180deg, rgba(255,255,255,0.20), rgba(255,255,255,0) 42%);
+            pointer-events: none;
+            mix-blend-mode: overlay;
+        }
+        .header, .info-bar {
+            backdrop-filter: blur(24px) saturate(180%);
+            -webkit-backdrop-filter: blur(24px) saturate(180%);
+            box-shadow: var(--shadow-md), inset 0 1px 0 rgba(255,255,255,0.14), inset 0 0 0 1px rgba(255,255,255,0.04);
+        }
+        .player-section {
+            backdrop-filter: blur(28px) saturate(180%);
+            -webkit-backdrop-filter: blur(28px) saturate(180%);
+            box-shadow: 0 -10px 30px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.14);
+        }
+        .modal-box {
+            backdrop-filter: blur(30px) saturate(180%);
+            -webkit-backdrop-filter: blur(30px) saturate(180%);
+            max-height: 86vh;
+            overflow-y: auto;
+        }
+        .score-box, .info-item, .opponent-avatar, .player-avatar {
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.22), 0 4px 10px rgba(0,0,0,0.3);
+        }
+
+        /* ---------- دکمه‌ی ریست بازی ---------- */
+        .reset-btn {
+            position: fixed;
+            top: max(10px, env(safe-area-inset-top));
+            left: 10px;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            border: 1px solid rgba(255,255,255,0.14);
+            background: rgba(255,255,255,0.06);
+            backdrop-filter: blur(18px) saturate(160%);
+            -webkit-backdrop-filter: blur(18px) saturate(160%);
+            color: var(--ink-faint);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.72rem;
+            cursor: pointer;
+            z-index: 1500;
+            transition: opacity 0.2s ease, color 0.2s ease;
+            opacity: 0.55;
+        }
+        .reset-btn:hover, .reset-btn:focus-visible { opacity: 1; color: var(--gold-2); outline: none; }
+        .reset-btn:active { transform: scale(0.9); }
+        #startScreen:not(.hidden) ~ .reset-btn { display: none; }
+        .sound-btn { left: auto; right: 10px; }
+        .last-trick-btn { top: calc(max(10px, env(safe-area-inset-top)) + 40px); }
+
+        .last-trick-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin: 16px 0;
+        }
+        .last-trick-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            padding: 6px 10px;
+            border-radius: var(--radius-sm);
+            background: rgba(255,255,255,0.04);
+            border: 1px solid transparent;
+        }
+        .last-trick-row.winner {
+            border-color: var(--gold);
+            background: rgba(212,168,87,0.08);
+        }
+        .last-trick-name { font-weight: 700; font-size: 0.95rem; color: var(--ink-muted); }
+        .last-trick-row.winner .last-trick-name { color: var(--gold-2); }
+        .last-trick-row .card { cursor: default; }
+
+        .stats-line {
+            color: var(--ink-faint);
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-top: -30px;
+            margin-bottom: 30px;
+            min-height: 1em;
+        }
+
+        #continueBtn { margin-top: 0; }
+
+        .stats-summary {
+            color: var(--ink-muted);
+            font-size: 0.85rem;
+            margin-top: 10px;
+            font-weight: 600;
+        }
+
+        /* ---------- تاریخچه‌ی راندها ---------- */
+        .history-list {
+            max-height: 34vh;
+            overflow-y: auto;
+            margin: 14px 0;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border-soft);
+        }
+        .history-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            padding: 8px 10px;
+            font-size: 0.85rem;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+        }
+        .history-row:last-child { border-bottom: none; }
+        .history-round { color: var(--ink-faint); font-weight: 600; min-width: 46px; text-align: right; }
+        .history-trump { color: var(--gold-2); font-weight: 700; }
+        .history-score { color: var(--ink-muted); font-variant-numeric: tabular-nums; }
+        .history-winner { font-weight: 800; }
+        .history-winner.us { color: var(--emerald); }
+        .history-winner.them { color: var(--ruby); }
+    </style>
+</head>
+<body>
+    <div class="start-screen" id="startScreen">
+        <div class="logo">
+            <span>♠</span><span>♥</span><span>♦</span><span>♣</span>
+        </div>
+        <h1 class="start-title">حکم</h1>
+        <p class="start-subtitle">بازی چهار نفره</p>
+        <p class="stats-line" id="statsLine"></p>
+        <button class="start-btn" id="startBtn">شروع بازی</button>
+        <button class="btn secondary hidden" id="continueBtn">ادامه‌ی بازی قبلی</button>
+    </div>
+
+    <div class="game-wrapper hidden" id="gameWrapper">
+        <div class="header">
+            <div class="title"><i class="fas fa-crown"></i> حکم</div>
+            <div class="scores">
+                <div class="score-box us">ما: <span id="scoreA">0</span></div>
+                <div class="score-box them">آنها: <span id="scoreB">0</span></div>
+            </div>
+        </div>
+
+        <div class="info-bar">
+            <div class="info-item">
+                <i class="fas fa-cards icon-round"></i>
+                <span>دست: <span id="trickNum">0</span>/13</span>
+            </div>
+            <div class="info-item">
+                <i class="fas fa-user icon-us"></i>
+                <span>ما: <span id="tricksA">0</span></span>
+            </div>
+            <div class="info-item">
+                <i class="fas fa-robot icon-them"></i>
+                <span>آنها: <span id="tricksB">0</span></span>
+            </div>
+            <div class="info-item">
+                <i class="fas fa-crown icon-trump"></i>
+                <span>حکم: <span id="trumpDisplay">-</span></span>
+            </div>
+        </div>
+
+        <div class="opponents-row">
+            <div class="opponent" id="player4Box">
+                <div class="opponent-avatar enemy">
+                    <i class="fas fa-robot"></i>
+                    <span class="crown-badge hidden" id="crown4"><i class="fas fa-crown"></i></span>
+                    <span class="trump-indicator hidden" id="trumpBadge4"></span>
+                </div>
+                <span class="opponent-name">حریف ۲</span>
+            </div>
+            <div class="opponent" id="player3Box">
+                <div class="opponent-avatar partner">
+                    <i class="fas fa-user"></i>
+                    <span class="crown-badge hidden" id="crown3"><i class="fas fa-crown"></i></span>
+                    <span class="trump-indicator hidden" id="trumpBadge3"></span>
+                </div>
+                <span class="opponent-name">یار شما</span>
+            </div>
+            <div class="opponent" id="player2Box">
+                <div class="opponent-avatar enemy">
+                    <i class="fas fa-robot"></i>
+                    <span class="crown-badge hidden" id="crown2"><i class="fas fa-crown"></i></span>
+                    <span class="trump-indicator hidden" id="trumpBadge2"></span>
+                </div>
+                <span class="opponent-name">حریف ۱</span>
+            </div>
+        </div>
+
+        <div class="play-area">
+            <div class="table">
+                <div class="card-slot top" id="slot3"></div>
+                <div class="card-slot left" id="slot4"></div>
+                <div class="card-slot right" id="slot2"></div>
+                <div class="card-slot bottom" id="slot1"></div>
+            </div>
+        </div>
+
+        <div class="player-section" id="player1Box">
+            <div class="player-info">
+                <div class="player-avatar">
+                    <i class="fas fa-user"></i>
+                    <span class="crown-badge hidden" id="crown1"><i class="fas fa-crown"></i></span>
+                    <span class="trump-indicator hidden" id="trumpBadge1"></span>
+                </div>
+                <span class="player-name">شما</span>
+            </div>
+            <div class="hand" id="handCards"></div>
+        </div>
+    </div>
+
+    <div class="winner-popup" id="winnerPopup"></div>
+
+    <div class="modal" id="trumpModal">
+        <div class="modal-box">
+            <h2 class="modal-title"><i class="fas fa-crown"></i> انتخاب حکم</h2>
+            <p style="opacity: 0.8; margin-bottom: 10px; font-size: 1rem;">۵ کارت اول:</p>
+            <div class="preview-cards" id="previewCards"></div>
+            <div class="trump-grid">
+                <button class="trump-btn spades" data-trump="spades"><span>♠</span><span class="trump-label">پیک</span></button>
+                <button class="trump-btn hearts" data-trump="hearts"><span>♥</span><span class="trump-label">دل</span></button>
+                <button class="trump-btn diamonds" data-trump="diamonds"><span>♦</span><span class="trump-label">خشت</span></button>
+                <button class="trump-btn clubs" data-trump="clubs"><span>♣</span><span class="trump-label">گشنیز</span></button>
+                <button class="trump-btn special" data-trump="ners"><span>(2) نرس</span></button>
+                <button class="trump-btn special" data-trump="asners"><span>(A2) آس‌نرس</span></button>
+                <button class="trump-btn special" data-trump="sers"><span>(A) سرس</span></button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="roundModal">
+        <div class="modal-box">
+            <h2 class="modal-title" id="roundTitle">پایان راند</h2>
+            <p id="roundMsg" style="font-size: 1.1rem; line-height: 1.8;"></p>
+            <button class="btn" id="nextRoundBtn">راند بعدی</button>
+        </div>
+    </div>
+
+    <div class="modal" id="endModal">
+        <div class="modal-box">
+            <h2 class="modal-title" id="endTitle">پایان</h2>
+            <p id="endMsg" style="font-size: 1.2rem; line-height: 1.8;"></p>
+            <div class="history-list hidden" id="historyList"></div>
+            <p class="stats-summary" id="statsSummary"></p>
+            <button class="btn" id="newGameBtn">بازی جدید</button>
+        </div>
+    </div>
+
+    <div class="modal" id="kotModal">
+        <div class="modal-box">
+            <h2 class="modal-title"><i class="fas fa-trophy"></i> کت!</h2>
+            <p id="kotMsg" style="font-size: 1.1rem;"></p>
+            <p style="margin: 15px 0; font-size: 1.1rem;">درخواست بام؟</p>
+            <div>
+                <button class="btn" id="bamYes">بله، بام!</button>
+                <button class="btn secondary" id="bamNo">خیر</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="lastTrickModal">
+        <div class="modal-box">
+            <h2 class="modal-title"><i class="fas fa-clock-rotate-left"></i> دست قبلی</h2>
+            <div class="last-trick-list" id="lastTrickCards"></div>
+            <button class="btn secondary" id="closeLastTrick">بستن</button>
+        </div>
+    </div>
+
+    <button class="reset-btn" id="resetBtn" title="شروع دوباره" aria-label="شروع دوباره بازی"><i class="fas fa-rotate-left"></i></button>
+    <button class="reset-btn sound-btn" id="soundBtn" title="صدا" aria-label="روشن/خاموش کردن صدا"><i class="fas fa-volume-high"></i></button>
+    <button class="reset-btn last-trick-btn hidden" id="lastTrickBtn" title="دست قبلی" aria-label="نمایش آخرین دست"><i class="fas fa-clock-rotate-left"></i></button>
+
+    <script>
+    (function() {
+        'use strict';
+
+        const SUITS = ['spades', 'hearts', 'diamonds', 'clubs'];
+        const SYMBOLS = { spades: '♠', hearts: '♥', diamonds: '♦', clubs: '♣' };
+        const RANKS = ['2','3','4','5','6','7','8','9','10','J','Q','K','A'];
+        const NEXT = {1: 2, 2: 3, 3: 4, 4: 1};
+        const PARTNER = { 1: 3, 2: 4, 3: 1, 4: 2 };
+
+        const G = {
+            players: {
+                1: { name: 'شما', hand: [], team: 'A' },
+                2: { name: 'حریف۱', hand: [], team: 'B' },
+                3: { name: 'یار', hand: [], team: 'A' },
+                4: { name: 'حریف۲', hand: [], team: 'B' }
+            },
+            hakem: null, trump: null, trumpMode: 'normal',
+            trick: [], leadSuit: null, current: null, starter: null,
+            tricksWon: { A: 0, B: 0 }, score: { A: 0, B: 0 },
+            trickNum: 0, phase: 'idle', processing: false,
+            selectedCard: null, deck: [],
+            memory: { played: [], voids: {}, aces: {}, kings: {} },
+            kotTeam: null, kotPoints: 0, bamMode: false, roundHistory: [], lastTrick: null
+        };
+
+        const $ = id => document.getElementById(id);
+        const delay = ms => new Promise(r => setTimeout(r, ms));
+
+        // ---------- صدا ----------
+        let soundOn = localStorage.getItem('hokm_sound_v1') !== '0';
+        let audioCtx = null;
+        function getAudioCtx() {
+            if (!audioCtx) {
+                const AC = window.AudioContext || window.webkitAudioContext;
+                if (!AC) return null;
+                audioCtx = new AC();
+            }
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            return audioCtx;
+        }
+        function playTone(freq, duration, type, gainVal, delayFromNow) {
+            if (!soundOn) return;
+            try {
+                const ctx = getAudioCtx();
+                if (!ctx) return;
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = type || 'sine';
+                osc.frequency.value = freq;
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                const t0 = ctx.currentTime + (delayFromNow || 0);
+                gain.gain.setValueAtTime(gainVal || 0.14, t0);
+                gain.gain.exponentialRampToValueAtTime(0.001, t0 + duration);
+                osc.start(t0);
+                osc.stop(t0 + duration + 0.03);
+            } catch (e) { /* بی‌صدا نادیده گرفته می‌شود */ }
+        }
+        function sfxCardPlay() { playTone(520, 0.07, 'triangle', 0.09, 0); }
+        function sfxTrickWinUs() { playTone(660, 0.1, 'sine', 0.13, 0); playTone(880, 0.14, 'sine', 0.13, 0.09); }
+        function sfxTrickWinThem() { playTone(340, 0.14, 'sine', 0.1, 0); }
+        function sfxKotUs() { playTone(523, 0.12, 'sine', 0.15, 0); playTone(659, 0.12, 'sine', 0.15, 0.1); playTone(784, 0.22, 'sine', 0.15, 0.2); }
+        function sfxKotThem() { playTone(300, 0.16, 'sawtooth', 0.09, 0); playTone(220, 0.22, 'sawtooth', 0.09, 0.12); }
+        function sfxBam() { playTone(523, 0.1, 'sine', 0.17, 0); playTone(659, 0.1, 'sine', 0.17, 0.09); playTone(784, 0.1, 'sine', 0.17, 0.18); playTone(1047, 0.32, 'sine', 0.17, 0.27); }
+        function sfxWin() { playTone(523, 0.12, 'sine', 0.16, 0); playTone(659, 0.12, 'sine', 0.16, 0.1); playTone(784, 0.12, 'sine', 0.16, 0.2); playTone(1047, 0.3, 'sine', 0.16, 0.3); }
+        function sfxLose() { playTone(320, 0.2, 'sawtooth', 0.1, 0); playTone(210, 0.3, 'sawtooth', 0.1, 0.14); }
+        function sfxTap() { playTone(300, 0.04, 'square', 0.05, 0); }
+
+        // ---------- ذخیره‌سازی خودکار ----------
+        const SAVE_KEY = 'hokm_save_v1';
+        const STATS_KEY = 'hokm_stats_v1';
+
+        function saveGame() {
+            try { localStorage.setItem(SAVE_KEY, JSON.stringify(G)); } catch (e) { /* فضای ذخیره در دسترس نیست */ }
+        }
+        function loadGame() {
+            try {
+                const raw = localStorage.getItem(SAVE_KEY);
+                return raw ? JSON.parse(raw) : null;
+            } catch (e) { return null; }
+        }
+        function clearSave() {
+            try { localStorage.removeItem(SAVE_KEY); } catch (e) { /* noop */ }
+        }
+        function defaultStats() {
+            return { gamesPlayed: 0, gamesWon: 0, gamesLost: 0, kots: 0, bams: 0 };
+        }
+        function loadStats() {
+            try {
+                const raw = localStorage.getItem(STATS_KEY);
+                return raw ? Object.assign(defaultStats(), JSON.parse(raw)) : defaultStats();
+            } catch (e) { return defaultStats(); }
+        }
+        function saveStats(s) {
+            try { localStorage.setItem(STATS_KEY, JSON.stringify(s)); } catch (e) { /* noop */ }
+        }
+        function updateStatsOnGameEnd(winner) {
+            const s = loadStats();
+            s.gamesPlayed++;
+            if (winner === 'A') s.gamesWon++; else s.gamesLost++;
+            for (const r of G.roundHistory) {
+                if (r.kot && r.winner === 'A') s.kots++;
+                if (r.bam && r.winner === 'A') s.bams++;
+            }
+            saveStats(s);
+            return s;
+        }
+        function renderStartStats() {
+            const el = $('statsLine');
+            if (!el) return;
+            const s = loadStats();
+            if (!s.gamesPlayed) { el.textContent = ''; return; }
+            const pct = Math.round((s.gamesWon / s.gamesPlayed) * 100);
+            el.textContent = `${s.gamesWon} برد از ${s.gamesPlayed} بازی (٪${pct}) · ${s.kots} کت · ${s.bams} بام`;
+        }
+        function applyLoadedState(loaded) {
+            G.players = loaded.players;
+            G.hakem = loaded.hakem;
+            G.trump = loaded.trump;
+            G.trumpMode = loaded.trumpMode;
+            G.trick = loaded.trick;
+            G.leadSuit = loaded.leadSuit;
+            G.current = loaded.current;
+            G.starter = loaded.starter;
+            G.tricksWon = loaded.tricksWon;
+            G.score = loaded.score;
+            G.trickNum = loaded.trickNum;
+            G.phase = loaded.phase;
+            G.processing = false;
+            G.selectedCard = null;
+            G.deck = loaded.deck || [];
+            G.memory = loaded.memory || { played: [], voids: {}, aces: {}, kings: {} };
+            G.kotTeam = loaded.kotTeam;
+            G.kotPoints = loaded.kotPoints;
+            G.bamMode = loaded.bamMode;
+            G.roundHistory = loaded.roundHistory || [];
+            G.lastTrick = loaded.lastTrick || null;
+        }
+
+        function shuffle(arr) {
+            const a = [...arr];
+            for (let i = a.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [a[i], a[j]] = [a[j], a[i]];
+            }
+            return a;
+        }
+
+        function makeDeck() {
+            const d = [];
+            for (const s of SUITS) for (const r of RANKS) d.push({ suit: s, rank: r });
+            return d;
+        }
+
+        function cardVal(c, mode) {
+            if (mode === 'ners') {
+                // نرس: ۲ بالاترین ارزش، آس پایین‌ترین ارزش
+                const o = ['2','3','4','5','6','7','8','9','10','J','Q','K','A'];
+                return o.length - o.indexOf(c.rank);
+            }
+            if (mode === 'asners') {
+                // آس‌نرس: آس بالاترین ارزش، شاه پایین‌ترین ارزش
+                const o = ['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
+                return o.length - o.indexOf(c.rank);
+            }
+            return RANKS.indexOf(c.rank) + 1;
+        }
+
+        function cmpCards(a, b, lead, mode, trump) {
+            const ta = mode === 'normal' && a.suit === trump;
+            const tb = mode === 'normal' && b.suit === trump;
+            if (mode === 'sers') {
+                if (a.suit === lead && b.suit !== lead) return 1;
+                if (a.suit !== lead && b.suit === lead) return -1;
+                if (a.suit !== lead && b.suit !== lead) return 0;
+                return cardVal(a, mode) - cardVal(b, mode);
+            }
+            if (ta && !tb) return 1;
+            if (!ta && tb) return -1;
+            if (ta && tb) return cardVal(a, mode) - cardVal(b, mode);
+            if (a.suit === lead && b.suit !== lead) return 1;
+            if (a.suit !== lead && b.suit === lead) return -1;
+            if (a.suit === lead) return cardVal(a, mode) - cardVal(b, mode);
+            return 0;
+        }
+
+        function trickWinner(trick, lead, mode, trump) {
+            let w = trick[0];
+            for (let i = 1; i < trick.length; i++) {
+                if (cmpCards(trick[i].card, w.card, lead, mode, trump) > 0) w = trick[i];
+            }
+            return w;
+        }
+
+        function sortHand(hand, trump, mode) {
+            const bins = { spades: [], hearts: [], diamonds: [], clubs: [] };
+            for (const c of hand) bins[c.suit].push(c);
+            for (const s of SUITS) bins[s].sort((a, b) => cardVal(b, mode) - cardVal(a, mode));
+            const out = [];
+            if (mode === 'normal' && trump) {
+                out.push(...bins[trump]);
+                for (const s of SUITS.filter(x => x !== trump)) out.push(...bins[s]);
+            } else {
+                for (const s of SUITS) out.push(...bins[s]);
+            }
+            return out;
+        }
+
+        function createCard(c, size = '') {
+            const el = document.createElement('div');
+            const red = c.suit === 'hearts' || c.suit === 'diamonds';
+            const isTrump = G.trumpMode === 'normal' && c.suit === G.trump;
+            el.className = `card ${red ? 'red' : 'black'}${isTrump ? ' trump' : ''}${size ? ' ' + size : ''}`;
+            el.innerHTML = `
+                <span class="card-rank">${c.rank}</span>
+                <span class="card-suit-center">${SYMBOLS[c.suit]}</span>
+                <span class="card-rank bottom">${c.rank}</span>
+            `;
+            return el;
+        }
+
+        function playable(pid) {
+            const h = G.players[pid].hand;
+            if (!G.leadSuit || G.trick.length === 0) return h;
+            const f = h.filter(c => c.suit === G.leadSuit);
+            return f.length ? f : h;
+        }
+
+        function renderHand() {
+            const cont = $('handCards');
+            cont.innerHTML = '';
+            const h = sortHand(G.players[1].hand, G.trump, G.trumpMode);
+            G.players[1].hand = h;
+            const can = playable(1);
+            const myTurn = G.phase === 'play' && G.current === 1 && !G.processing;
+
+            for (const c of h) {
+                const el = createCard(c);
+                const ok = myTurn && can.some(x => x.suit === c.suit && x.rank === c.rank);
+                if (!ok) el.classList.add('disabled');
+                if (ok) el.onclick = () => selectCard(c);
+                if (G.selectedCard && G.selectedCard.suit === c.suit && G.selectedCard.rank === c.rank) {
+                    el.classList.add('selected');
+                }
+                cont.appendChild(el);
+            }
+        }
+
+        function selectCard(c) {
+            if (G.selectedCard && G.selectedCard.suit === c.suit && G.selectedCard.rank === c.rank) {
+                G.selectedCard = null;
+                playCardHuman(c);
+            } else {
+                G.selectedCard = c;
+                renderHand();
+            }
+        }
+
+        async function playCardHuman(c) {
+            G.processing = true;
+            doPlayCard(1, c);
+            await nextTurn();
+        }
+
+        function doPlayCard(pid, c) {
+            sfxCardPlay();
+            const h = G.players[pid].hand;
+            const i = h.findIndex(x => x.suit === c.suit && x.rank === c.rank);
+            if (i > -1) h.splice(i, 1);
+            G.trick.push({ player: pid, card: c });
+            if (G.trick.length === 1) G.leadSuit = c.suit;
+            G.memory.played.push({ ...c });
+            if (c.rank === 'A') G.memory.aces[c.suit] = true;
+            if (c.rank === 'K') G.memory.kings[c.suit] = true;
+            if (G.leadSuit && c.suit !== G.leadSuit) {
+                if (!G.memory.voids[pid]) G.memory.voids[pid] = [];
+                if (!G.memory.voids[pid].includes(G.leadSuit)) G.memory.voids[pid].push(G.leadSuit);
+            }
+            renderTableCard(pid, c);
+            if (pid === 1) renderHand();
+        }
+
+        function renderTableCard(pid, c) {
+            const slot = $(`slot${pid}`);
+            slot.innerHTML = '';
+            slot.appendChild(createCard(c, 'table-card'));
+        }
+
+        function clearTable() {
+            for (let i = 1; i <= 4; i++) $(`slot${i}`).innerHTML = '';
+        }
+
+        function updateUI() {
+            $('scoreA').textContent = G.score.A;
+            $('scoreB').textContent = G.score.B;
+            $('tricksA').textContent = G.tricksWon.A;
+            $('tricksB').textContent = G.tricksWon.B;
+            $('trickNum').textContent = G.trickNum;
+
+            let td = '-';
+            if (G.trump || G.trumpMode !== 'normal') {
+                if (G.trumpMode === 'normal') td = SYMBOLS[G.trump];
+                else if (G.trumpMode === 'ners') td = '(2)';
+                else if (G.trumpMode === 'asners') td = '(A2)';
+                else td = '(A)';
+            }
+            $('trumpDisplay').textContent = td;
+
+            for (let i = 1; i <= 4; i++) {
+                const box = $(`player${i}Box`);
+                if (box) box.classList.toggle('active', G.current === i);
+            }
+
+            for (let i = 1; i <= 4; i++) {
+                $(`crown${i}`).classList.add('hidden');
+                $(`trumpBadge${i}`).classList.add('hidden');
+            }
+            if (G.hakem) {
+                $(`crown${G.hakem}`).classList.remove('hidden');
+                if (G.trump || G.trumpMode !== 'normal') {
+                    const b = $(`trumpBadge${G.hakem}`);
+                    b.classList.remove('hidden');
+                    b.textContent = G.trumpMode === 'normal' ? SYMBOLS[G.trump] : (G.trumpMode === 'ners' ? '2' : G.trumpMode === 'asners' ? 'A2' : 'A');
+                }
+            }
+
+            if (G.phase !== 'idle') saveGame();
+            $('lastTrickBtn').classList.toggle('hidden', !G.lastTrick);
+        }
+
+        // ---------- ابزارهای شمارش کارت و تحلیل وضعیت برای هوش مصنوعی ----------
+
+        function opponentsOf(pid) {
+            const team = G.players[pid].team;
+            return [1, 2, 3, 4].filter(p => G.players[p].team !== team);
+        }
+
+        // بازیکنانی که هنوز در این دست کارت نزدن (به‌جز خود pid)
+        function stillToActPlayers(pid) {
+            const played = new Set(G.trick.map(t => t.player));
+            const rest = [];
+            for (let p = 1; p <= 4; p++) if (p !== pid && !played.has(p)) rest.push(p);
+            return rest;
+        }
+
+        // تعداد کارت‌های بزرگ‌تر از یک ارزش مشخص در یک خال، که نه بازی شده‌اند نه دست خودم هستن
+        // (یعنی احتمالاً دست یار یا حریف‌هاست)
+        function unaccountedHigherRanks(pid, suit, val, mode) {
+            const played = new Set(G.memory.played.filter(c => c.suit === suit).map(c => c.rank));
+            const mine = new Set(G.players[pid].hand.filter(c => c.suit === suit).map(c => c.rank));
+            let count = 0;
+            for (const r of RANKS) {
+                if (played.has(r) || mine.has(r)) continue;
+                if (cardVal({ rank: r, suit }, mode) > val) count++;
+            }
+            return count;
+        }
+
+        // آیا امکان داره یکی از بازیکنانی که هنوز نزدن، کارت بزرگ‌تری از این خال داشته باشه؟
+        function suitThreatExists(pid, suit, val, mode) {
+            if (unaccountedHigherRanks(pid, suit, val, mode) === 0) return false;
+            const rest = stillToActPlayers(pid);
+            for (const p of rest) {
+                const voids = G.memory.voids[p] || [];
+                if (!voids.includes(suit)) return true;
+            }
+            return false;
+        }
+
+        // آیا امکان داره یکی از بازیکنانی که هنوز نزدن، بتونه با حکم ببره؟
+        function trumpCutThreatExists(pid, mode, trump) {
+            if (mode !== 'normal' || !trump) return false;
+            if (unaccountedHigherRanks(pid, trump, 0, mode) === 0) return false;
+            const rest = stillToActPlayers(pid);
+            for (const p of rest) {
+                const voids = G.memory.voids[p] || [];
+                if (!voids.includes(trump)) return true;
+            }
+            return false;
+        }
+
+        // آیا کارت داده‌شده، با توجه به شمارش کارت‌ها، قطعا برنده‌ی این دسته؟
+        function isSecureWin(pid, card, mode, trump) {
+            if (suitThreatExists(pid, card.suit, cardVal(card, mode), mode)) return false;
+            if (mode === 'normal' && card.suit !== trump && trumpCutThreatExists(pid, mode, trump)) return false;
+            return true;
+        }
+
+        // میزان ریسک‌پذیری بر اساس وضعیت کلی راند (عقب/جلو بودن و دست‌های باقی‌مانده)
+        function riskAppetite(pid) {
+            const team = G.players[pid].team;
+            const opp = team === 'A' ? 'B' : 'A';
+            const behindBy = G.tricksWon[opp] - G.tricksWon[team];
+            const tricksLeft = 13 - G.trickNum;
+            let score = behindBy * 2;
+            if (tricksLeft <= 4) score += behindBy > 0 ? 3 : -1;
+            return score;
+        }
+
+        function aiPick(pid) {
+            const mode = G.trumpMode, trump = G.trump;
+            const can = playable(pid);
+            const hi = [...can].sort((a, b) => cardVal(b, mode) - cardVal(a, mode));
+            const lo = [...can].sort((a, b) => cardVal(a, mode) - cardVal(b, mode));
+            const partner = PARTNER[pid];
+            const lead = G.trick.length === 0;
+
+            // ---------- شروع یک دست جدید ----------
+            if (lead) {
+                if (mode === 'normal' && trump) {
+                    const opps = opponentsOf(pid);
+                    const bothOppVoidTrump = opps.every(p => (G.memory.voids[p] || []).includes(trump));
+                    const myTrumps = hi.filter(c => c.suit === trump);
+                    if (bothOppVoidTrump && myTrumps.length) {
+                        // هر دو حریف حکم ندارن؛ حکم‌های باقی‌مونده مال خودم یا یارمه، پس با خیال راحت حکم بزنم
+                        return myTrumps[0];
+                    }
+                }
+                const nonT = hi.filter(c => mode !== 'normal' || c.suit !== trump);
+                if (nonT.length) {
+                    const ace = nonT.find(c => c.rank === 'A');
+                    if (ace) return ace;
+                    for (const c of nonT) if (c.rank === 'K' && G.memory.aces[c.suit]) return c;
+                    return nonT[Math.floor(nonT.length / 2)];
+                }
+                return hi[Math.floor(hi.length / 2)];
+            }
+
+            const win = trickWinner(G.trick, G.leadSuit, mode, trump);
+            const partnerWin = win.player === partner;
+            const mustFollow = can.some(c => c.suit === G.leadSuit);
+            // نفر سوم بازی = یار شروع‌کننده‌ی همین دست
+            const isThirdPlayer = G.trick.length === 2 && partner === G.starter;
+
+            // ---------- باید از خال لید پیروی کنم ----------
+            if (mustFollow) {
+                const suit = hi.filter(c => c.suit === G.leadSuit); // نزولی
+                const suitAsc = lo.filter(c => c.suit === G.leadSuit); // صعودی
+
+                if (partnerWin) {
+                    if (isSecureWin(pid, win.card, mode, trump)) {
+                        // یارم قطعا می‌بره، کارت بی‌ارزش می‌دم
+                        return suitAsc[0];
+                    }
+                    // نامشخصه؛ بر اساس وضعیت راند تصمیم می‌گیرم
+                    const beatCards = suit.filter(c => cardVal(c, mode) > cardVal(win.card, mode));
+                    if (riskAppetite(pid) > 0 && beatCards.length) {
+                        return [...beatCards].sort((a, b) => cardVal(a, mode) - cardVal(b, mode))[0];
+                    }
+                    return suitAsc[0];
+                }
+
+                const beatCards = suit.filter(c => cardVal(c, mode) > cardVal(win.card, mode));
+                if (isThirdPlayer) {
+                    // نفر سوم: اگه می‌تونه ببره، بزرگ‌ترین کارت اون خال رو بزنه
+                    // (یا می‌بره، یا نفر چهارم رو مجبور به خرج کردن کارت باارزشش می‌کنه)
+                    if (beatCards.length) return beatCards[0]; // suit نزولیه، اولی بزرگ‌ترینه
+                    return suitAsc[0];
+                }
+                // بقیه (نفر دوم / نفر چهارم): کمترین کارت کافی برای بردن
+                if (beatCards.length) {
+                    return [...beatCards].sort((a, b) => cardVal(a, mode) - cardVal(b, mode))[0];
+                }
+                return suitAsc[0];
+            }
+
+            // ---------- خال لید رو ندارم (تصمیم بریدن) ----------
+            const trumps = mode === 'normal' ? hi.filter(c => c.suit === trump) : [];
+            const nonT = lo.filter(c => mode !== 'normal' || c.suit !== trump);
+
+            if (partnerWin) {
+                if (isSecureWin(pid, win.card, mode, trump)) {
+                    return nonT.length ? nonT[0] : lo[0];
+                }
+                if (riskAppetite(pid) > 0 && trumps.length) {
+                    return trumps[trumps.length - 1]; // کمترین حکم کافی برای تضمین دست
+                }
+                return nonT.length ? nonT[0] : lo[0];
+            }
+
+            if (trumps.length) {
+                const wt = mode === 'normal' && win.card.suit === trump;
+                if (!wt) return trumps[trumps.length - 1];
+                const higher = trumps.filter(c => cardVal(c, mode) > cardVal(win.card, mode));
+                if (higher.length) return higher[higher.length - 1];
+            }
+
+            return nonT.length ? nonT[0] : lo[0];
+        }
+
+        async function nextTurn() {
+            if (G.trick.length === 4) { await endTrick(); return; }
+            G.current = NEXT[G.current];
+            updateUI();
+            if (G.current !== 1) {
+                await delay(550);
+                doPlayCard(G.current, aiPick(G.current));
+                await nextTurn();
+            } else {
+                G.processing = false;
+                G.selectedCard = null;
+                renderHand();
+            }
+        }
+
+        async function endTrick() {
+            G.phase = 'trickEnd';
+            const w = trickWinner(G.trick, G.leadSuit, G.trumpMode, G.trump);
+            G.lastTrick = { entries: G.trick.map(t => ({ player: t.player, card: t.card })), winner: w.player };
+            G.tricksWon[G.players[w.player].team]++;
+            if (G.players[w.player].team === 'A') sfxTrickWinUs(); else sfxTrickWinThem();
+            updateUI();
+            showPopup(`${G.players[w.player].name} برد!`);
+            await delay(1000);
+            hidePopup();
+            G.starter = w.player;
+
+            if (G.bamMode) {
+                if (G.tricksWon[G.kotTeam] === 13) {
+                    logRound({
+                        tricksA: G.tricksWon.A, tricksB: G.tricksWon.B, winner: G.kotTeam, pts: G.kotPoints,
+                        trump: currentTrumpLabel(), kot: true, bam: true
+                    });
+                    showEnd(G.kotTeam, true);
+                    return;
+                }
+                if (G.trickNum === 13) {
+                    // بام شکست خورد؛ راند طبق تعداد دست‌های برده‌شده تمام می‌شود
+                    await endRound();
+                    return;
+                }
+                await startTrick();
+                return;
+            }
+
+            if (G.tricksWon.A === 7 && G.tricksWon.B === 0) {
+                await handleKot('A');
+                return;
+            }
+            if (G.tricksWon.B === 7 && G.tricksWon.A === 0) {
+                await handleKot('B');
+                return;
+            }
+
+            if (G.tricksWon.A >= 7 || G.tricksWon.B >= 7) {
+                await endRound();
+                return;
+            }
+
+            if (G.trickNum === 13) {
+                await endRound();
+                return;
+            }
+
+            await startTrick();
+        }
+
+        function showPopup(t) {
+            const p = $('winnerPopup');
+            p.textContent = t;
+            p.classList.add('show');
+        }
+
+        function hidePopup() {
+            $('winnerPopup').classList.remove('show');
+        }
+
+        function getKotPoints(winnerTeam) {
+            const hTeam = G.players[G.hakem].team;
+            return winnerTeam !== hTeam ? 3 : 2;
+        }
+
+        function currentTrumpLabel() {
+            if (G.trumpMode === 'normal') return G.trump ? SYMBOLS[G.trump] : '-';
+            if (G.trumpMode === 'ners') return '(2) نرس';
+            if (G.trumpMode === 'asners') return '(A2) آس‌نرس';
+            return '(A) سرس';
+        }
+
+        function logRound(entry) {
+            G.roundHistory.push(entry);
+        }
+
+        function renderHistory() {
+            const cont = $('historyList');
+            if (!G.roundHistory.length) { cont.classList.add('hidden'); cont.innerHTML = ''; return; }
+            cont.classList.remove('hidden');
+            cont.innerHTML = G.roundHistory.map((r, i) => `
+                <div class="history-row">
+                    <span class="history-round">راند ${i + 1}</span>
+                    <span class="history-trump">${r.trump}</span>
+                    <span class="history-score">${r.tricksA}-${r.tricksB}</span>
+                    <span class="history-winner ${r.winner === 'A' ? 'us' : 'them'}">${r.winner === 'A' ? 'ما' : 'آنها'} +${r.pts}${r.bam ? ' 🏆بام' : (r.kot ? ' کت' : '')}</span>
+                </div>
+            `).join('');
+        }
+
+        async function handleKot(team) {
+            G.kotTeam = team;
+            G.kotPoints = getKotPoints(team);
+
+            if (team === 'A') {
+                sfxKotUs();
+                $('kotMsg').textContent = `کت کردید! (+${G.kotPoints} امتیاز)`;
+                $('kotModal').classList.add('show');
+            } else {
+                sfxKotThem();
+                G.score[team] += G.kotPoints;
+                updateUI();
+                if (Math.random() < 0.15) {
+                    G.bamMode = true;
+                    showPopup('حریف درخواست بام!');
+                    await delay(1500);
+                    hidePopup();
+                    await startTrick();
+                } else {
+                    logRound({
+                        tricksA: G.tricksWon.A, tricksB: G.tricksWon.B, winner: team, pts: G.kotPoints,
+                        trump: currentTrumpLabel(), kot: true, bam: false
+                    });
+                    const hTeam2 = G.players[G.hakem].team;
+                    if (team !== hTeam2) G.hakem = NEXT[G.hakem];
+                    if (checkGameEnd()) return;
+                    $('roundTitle').textContent = 'کت شدید!';
+                    $('roundTitle').style.color = 'var(--ruby)';
+                    $('roundMsg').innerHTML = `+${G.kotPoints} امتیاز حریف<br><br>کل: ${G.score.A} - ${G.score.B}`;
+                    $('roundModal').classList.add('show');
+                }
+            }
+        }
+
+        async function endRound() {
+            G.phase = 'roundEnd';
+            let winner = null, pts = 0;
+
+            if (G.tricksWon.A >= 7) {
+                winner = 'A';
+                pts = 1;
+                G.score.A += 1;
+            } else if (G.tricksWon.B >= 7) {
+                winner = 'B';
+                pts = 1;
+                G.score.B += 1;
+            }
+
+            logRound({
+                tricksA: G.tricksWon.A, tricksB: G.tricksWon.B, winner, pts,
+                trump: currentTrumpLabel(), kot: !!G.kotTeam, bam: false
+            });
+
+            updateUI();
+
+            const hTeam = G.players[G.hakem].team;
+            if (winner && winner !== hTeam) {
+                G.hakem = NEXT[G.hakem];
+            }
+
+            if (checkGameEnd()) return;
+
+            $('roundTitle').textContent = winner === 'A' ? 'برنده شدید!' : 'باختید';
+            $('roundTitle').style.color = winner === 'A' ? 'var(--emerald)' : 'var(--ruby)';
+            $('roundMsg').innerHTML = `دست‌ها: ${G.tricksWon.A} - ${G.tricksWon.B}<br>امتیاز: +${pts}<br><br>کل: ${G.score.A} - ${G.score.B}`;
+            $('roundModal').classList.add('show');
+        }
+
+        function checkGameEnd() {
+            if (G.score.A >= 7) { showEnd('A'); return true; }
+            if (G.score.B >= 7) { showEnd('B'); return true; }
+            return false;
+        }
+
+        function showEnd(w, isBam = false) {
+            let title, msg;
+            if (isBam) {
+                title = w === 'A' ? '🎉 بام! برنده شدید!' : '💀 بام! باختید!';
+                msg = 'با گرفتن ۱۳ دست، بازی تمام شد!';
+                if (w === 'A') sfxBam(); else sfxLose();
+            } else {
+                title = w === 'A' ? '🎉 برنده شدید!' : 'باختید!';
+                msg = `${G.score.A} - ${G.score.B}`;
+                if (w === 'A') sfxWin(); else sfxLose();
+            }
+            $('endTitle').textContent = title;
+            $('endTitle').style.color = w === 'A' ? 'var(--emerald)' : 'var(--ruby)';
+            $('endMsg').innerHTML = msg;
+            renderHistory();
+            const s = updateStatsOnGameEnd(w);
+            const pct = Math.round((s.gamesWon / s.gamesPlayed) * 100);
+            $('statsSummary').textContent = `مجموع شما: ${s.gamesWon} برد از ${s.gamesPlayed} بازی (٪${pct})`;
+            clearSave();
+            $('endModal').classList.add('show');
+        }
+
+        async function startTrick() {
+            G.trickNum++;
+            G.trick = [];
+            G.leadSuit = null;
+            G.phase = 'play';
+            G.processing = false;
+            G.selectedCard = null;
+            clearTable();
+            if (G.trickNum === 1) G.starter = G.hakem;
+            G.current = G.starter;
+            updateUI();
+            renderHand();
+            if (G.current !== 1) {
+                G.processing = true;
+                await delay(550);
+                doPlayCard(G.current, aiPick(G.current));
+                await nextTurn();
+            }
+        }
+
+        async function dealRest() {
+            let i = 0;
+            for (let r = 0; r < 8; r++) {
+                for (let p = 0; p < 4; p++) {
+                    const pid = ((G.hakem - 1 + p) % 4) + 1;
+                    G.players[pid].hand.push(G.deck[20 + i++]);
+                }
+            }
+            for (let p = 1; p <= 4; p++) G.players[p].hand = sortHand(G.players[p].hand, G.trump, G.trumpMode);
+            renderHand();
+            await delay(300);
+            await startTrick();
+        }
+
+        function setTrump(mode, suit) {
+            G.trumpMode = mode;
+            G.trump = suit;
+            updateUI();
+        }
+
+        function showTrumpPicker() {
+            const cont = $('previewCards');
+            cont.innerHTML = '';
+            for (const c of sortHand(G.players[1].hand.slice(0, 5), null, 'normal')) {
+                cont.appendChild(createCard(c));
+            }
+            $('trumpModal').classList.add('show');
+        }
+
+        async function selectTrump() {
+            G.phase = 'trump';
+            if (G.hakem === 1) {
+                showTrumpPicker();
+            } else {
+                await delay(700);
+                const h = G.players[G.hakem].hand.slice(0, 5);
+                const scores = { spades: 0, hearts: 0, diamonds: 0, clubs: 0 };
+                for (const c of h) {
+                    scores[c.suit] += cardVal(c, 'normal');
+                    if (c.rank === 'A') scores[c.suit] += 20;
+                    if (c.rank === 'K') scores[c.suit] += 10;
+                }
+                let best = 'spades', bs = 0;
+                for (const s of SUITS) if (scores[s] > bs) { bs = scores[s]; best = s; }
+                setTrump('normal', best);
+                await dealRest();
+            }
+        }
+
+        async function dealFirst() {
+            G.phase = 'deal';
+            G.deck = shuffle(makeDeck());
+            let i = 0;
+            for (let r = 0; r < 5; r++) {
+                for (let p = 0; p < 4; p++) {
+                    const pid = ((G.hakem - 1 + p) % 4) + 1;
+                    G.players[pid].hand.push(G.deck[i++]);
+                }
+            }
+            renderHand();
+            await selectTrump();
+        }
+
+        async function startRound() {
+            G.tricksWon = { A: 0, B: 0 };
+            G.trickNum = 0;
+            G.trump = null;
+            G.trumpMode = 'normal';
+            G.trick = [];
+            G.leadSuit = null;
+            G.kotTeam = null;
+            G.kotPoints = 0;
+            G.bamMode = false;
+            G.lastTrick = null;
+            G.processing = false;
+            G.selectedCard = null;
+            G.memory = { played: [], voids: {}, aces: {}, kings: {} };
+            for (let i = 1; i <= 4; i++) G.players[i].hand = [];
+            updateUI();
+            clearTable();
+            await dealFirst();
+        }
+
+        function startGame() {
+            clearSave();
+            $('startScreen').classList.add('hidden');
+            $('gameWrapper').classList.remove('hidden');
+            G.score = { A: 0, B: 0 };
+            G.roundHistory = [];
+            G.hakem = Math.floor(Math.random() * 4) + 1;
+            startRound();
+        }
+
+        async function continueGame() {
+            const loaded = loadGame();
+            if (!loaded) return;
+            applyLoadedState(loaded);
+            $('startScreen').classList.add('hidden');
+            $('gameWrapper').classList.remove('hidden');
+            clearTable();
+            for (const t of G.trick) renderTableCard(t.player, t.card);
+            renderHand();
+            updateUI();
+            if (G.current !== 1 && G.phase === 'play') {
+                G.processing = true;
+                await delay(550);
+                doPlayCard(G.current, aiPick(G.current));
+                await nextTurn();
+            }
+        }
+
+        function showLastTrick() {
+            if (!G.lastTrick) return;
+            const cont = $('lastTrickCards');
+            cont.innerHTML = '';
+            for (let pid = 1; pid <= 4; pid++) {
+                const entry = G.lastTrick.entries.find(e => e.player === pid);
+                if (!entry) continue;
+                const row = document.createElement('div');
+                row.className = 'last-trick-row' + (pid === G.lastTrick.winner ? ' winner' : '');
+                const nameSpan = document.createElement('span');
+                nameSpan.className = 'last-trick-name';
+                nameSpan.textContent = G.players[pid].name + (pid === G.lastTrick.winner ? ' 🏆' : '');
+                row.appendChild(nameSpan);
+                row.appendChild(createCard(entry.card, 'table-card'));
+                cont.appendChild(row);
+            }
+            $('lastTrickModal').classList.add('show');
+        }
+
+        $('lastTrickBtn').onclick = showLastTrick;
+        $('closeLastTrick').onclick = () => $('lastTrickModal').classList.remove('show');
+        $('lastTrickModal').onclick = (e) => {
+            if (e.target.id === 'lastTrickModal') $('lastTrickModal').classList.remove('show');
+        };
+
+        $('startBtn').onclick = startGame;
+
+        document.querySelectorAll('.trump-btn').forEach(b => {
+            b.onclick = () => {
+                const t = b.dataset.trump;
+                $('trumpModal').classList.remove('show');
+                if (['ners', 'asners', 'sers'].includes(t)) setTrump(t, null);
+                else setTrump('normal', t);
+                dealRest();
+            };
+        });
+
+        $('nextRoundBtn').onclick = () => {
+            $('roundModal').classList.remove('show');
+            startRound();
+        };
+
+        $('newGameBtn').onclick = () => {
+            $('endModal').classList.remove('show');
+            G.score = { A: 0, B: 0 };
+            G.roundHistory = [];
+            G.hakem = Math.floor(Math.random() * 4) + 1;
+            startRound();
+        };
+
+        $('resetBtn').onclick = () => {
+            if (!confirm('بازی از اول شروع بشه؟ امتیازها صفر می‌شن.')) return;
+            $('trumpModal').classList.remove('show');
+            $('roundModal').classList.remove('show');
+            $('endModal').classList.remove('show');
+            $('kotModal').classList.remove('show');
+            G.score = { A: 0, B: 0 };
+            G.roundHistory = [];
+            if (G.phase === 'idle') { startGame(); return; }
+            G.hakem = Math.floor(Math.random() * 4) + 1;
+            startRound();
+        };
+
+        $('bamYes').onclick = () => {
+            $('kotModal').classList.remove('show');
+            G.score[G.kotTeam] += G.kotPoints;
+            updateUI();
+            G.bamMode = true;
+            startTrick();
+        };
+
+        $('bamNo').onclick = () => {
+            $('kotModal').classList.remove('show');
+            G.score[G.kotTeam] += G.kotPoints;
+            updateUI();
+
+            logRound({
+                tricksA: G.tricksWon.A, tricksB: G.tricksWon.B, winner: G.kotTeam, pts: G.kotPoints,
+                trump: currentTrumpLabel(), kot: true, bam: false
+            });
+            const hTeam = G.players[G.hakem].team;
+            if (G.kotTeam !== hTeam) G.hakem = NEXT[G.hakem];
+
+            if (checkGameEnd()) return;
+
+            $('roundTitle').textContent = 'کت کردید!';
+            $('roundTitle').style.color = 'var(--emerald)';
+            $('roundMsg').innerHTML = `+${G.kotPoints} امتیاز<br><br>کل: ${G.score.A} - ${G.score.B}`;
+            $('roundModal').classList.add('show');
+        };
+
+        // ---------- دکمه‌ی صدا ----------
+        function updateSoundBtnIcon() {
+            const b = $('soundBtn');
+            if (!b) return;
+            b.innerHTML = soundOn ? '<i class="fas fa-volume-high"></i>' : '<i class="fas fa-volume-xmark"></i>';
+        }
+        $('soundBtn').onclick = () => {
+            soundOn = !soundOn;
+            try { localStorage.setItem('hokm_sound_v1', soundOn ? '1' : '0'); } catch (e) { /* noop */ }
+            updateSoundBtnIcon();
+            if (soundOn) sfxTap();
+        };
+        updateSoundBtnIcon();
+
+        // ---------- راه‌اندازی اولیه: آمار و بازی نیمه‌کاره ----------
+        renderStartStats();
+        const savedGame = loadGame();
+        if (savedGame && savedGame.phase === 'play' && savedGame.players && savedGame.players[1] && savedGame.players[1].hand && savedGame.players[1].hand.length) {
+            const cb = $('continueBtn');
+            cb.classList.remove('hidden');
+            cb.onclick = continueGame;
+        }
+
+    })();
+        if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function() {
+        // دقت کنید که آدرس sw.js باید دقیق باشد
+        navigator.serviceWorker.register('/hokm/sw.js')
+            .then(function(registration) {
+                console.log('ServiceWorker registered with scope: ', registration.scope);
+            }, function(err) {
+                console.log('ServiceWorker registration failed: ', err);
+            });
+    });
+}
+    </script>
+</body>
+</html>
