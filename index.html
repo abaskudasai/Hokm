@@ -1022,7 +1022,7 @@
             tricksWon: { A: 0, B: 0 }, score: { A: 0, B: 0 },
             trickNum: 0, phase: 'idle', processing: false,
             selectedCard: null, deck: [],
-            memory: { played: [], voids: {}, aces: {}, kings: {} },
+            memory: { played: [], voids: {}, aces: {}, kings: {}, signals: [] },
             kotTeam: null, kotPoints: 0, bamMode: false, roundHistory: [], lastTrick: null
         };
 
@@ -1132,7 +1132,8 @@
             G.processing = false;
             G.selectedCard = null;
             G.deck = loaded.deck || [];
-            G.memory = loaded.memory || { played: [], voids: {}, aces: {}, kings: {} };
+            G.memory = loaded.memory || { played: [], voids: {}, aces: {}, kings: {}, signals: [] };
+            if (!G.memory.signals) G.memory.signals = [];
             G.kotTeam = loaded.kotTeam;
             G.kotPoints = loaded.kotPoints;
             G.bamMode = loaded.bamMode;
@@ -1420,6 +1421,18 @@
             return run;
         }
 
+        // ---------- جواب یار: نشونه‌های نامستقیم قدرت دست یار در یک خال ----------
+        function recordSignal(player, suit, weight) {
+            G.memory.signals.push({ player, suit, weight });
+        }
+
+        function partnerSignalWeight(pid, suit) {
+            const partner = PARTNER[pid];
+            return G.memory.signals
+                .filter(s => s.player === partner && s.suit === suit)
+                .reduce((sum, s) => sum + s.weight, 0);
+        }
+
         function aiPick(pid) {
             const mode = G.trumpMode, trump = G.trump;
             const can = playable(pid);
@@ -1449,6 +1462,20 @@
                     const ace = safeLeads.find(c => c.rank === 'A');
                     if (ace) return ace;
                     return safeLeads.sort((a, b) => cardVal(b, mode) - cardVal(a, mode))[0];
+                }
+
+                // جواب یار: اگه خودم لید امنی ندارم ولی یار قبلا سیگنال قوی داده که یه خال دستش خوبه،
+                // همون خال رو (با کمترین کارتم) دوباره لید می‌زنم تا یار با کارت بالاش ببره
+                let signalSuit = null, signalWeight = 1; // آستانه: فقط سیگنال‌های نسبتا معتبر
+                for (const s of SUITS) {
+                    if (mode === 'normal' && s === trump) continue;
+                    if (!nonT.some(c => c.suit === s)) continue;
+                    const w = partnerSignalWeight(pid, s);
+                    if (w > signalWeight) { signalWeight = w; signalSuit = s; }
+                }
+                if (signalSuit) {
+                    const suitCardsAsc = lo.filter(c => c.suit === signalSuit);
+                    if (suitCardsAsc.length) return suitCardsAsc[0];
                 }
 
                 // هیچ لید امنی ندارم و توان کت کردن هم ندارم (وگرنه بالاتر برمی‌گشتم)؛
@@ -1568,6 +1595,22 @@
             G.phase = 'trickEnd';
             const w = trickWinner(G.trick, G.leadSuit, G.trumpMode, G.trump);
             G.lastTrick = { entries: G.trick.map(t => ({ player: t.player, card: t.card, necessary: t.necessary })), winner: w.player };
+
+            // ثبت جواب یار: سیگنال‌های نامستقیم از نحوه‌ی بازی هرکس
+            const leaderEntry = G.trick[0];
+            if (G.trickNum === 1 && leaderEntry.player === G.hakem && !leaderEntry.necessary) {
+                // حاکم اولین دست رو با یه خالِ غیرحکم شروع کرده -> سیگنال قوی که رأس اون خال دستشه
+                recordSignal(leaderEntry.player, leaderEntry.card.suit, 2);
+            }
+            for (const t of G.trick) {
+                if (t.player === leaderEntry.player) continue;
+                if (t.card.suit !== G.leadSuit) continue; // فقط پیروی از خال، نه برش
+                if (t.player === w.player) continue; // برنده که سیگنال نیست، واقعا برده
+                if (cardVal(t.card, G.trumpMode) >= 7) {
+                    recordSignal(t.player, t.card.suit, 1);
+                }
+            }
+
             G.tricksWon[G.players[w.player].team]++;
             if (G.players[w.player].team === 'A') sfxTrickWinUs(); else sfxTrickWinThem();
             updateUI();
@@ -1859,7 +1902,7 @@
             G.lastTrick = null;
             G.processing = false;
             G.selectedCard = null;
-            G.memory = { played: [], voids: {}, aces: {}, kings: {} };
+            G.memory = { played: [], voids: {}, aces: {}, kings: {}, signals: [] };
             for (let i = 1; i <= 4; i++) G.players[i].hand = [];
             updateUI();
             clearTable();
