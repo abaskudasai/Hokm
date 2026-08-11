@@ -98,6 +98,10 @@
             box-sizing: border-box;
             font-family: var(--font-ui);
             -webkit-tap-highlight-color: transparent;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            user-select: none;
+            -webkit-touch-callout: none;
         }
 
         html, body {
@@ -107,10 +111,7 @@
         }
 
         body {
-            background:
-                var(--pattern),
-                radial-gradient(ellipse 130% 90% at 50% -10%, var(--bg-1), var(--bg-0) 62%);
-            background-size: 56px 56px, cover;
+            background: radial-gradient(ellipse 130% 90% at 50% -10%, var(--bg-1), var(--bg-0) 62%);
             color: var(--ink);
         }
 
@@ -282,7 +283,7 @@
             min-height: 0;
         }
 
-        /* میز - مدال‌یون هشت‌ضلعی به‌جای نمد سبز */
+        /* میز - مدال‌یون فرش ایرانی، آروم و بدون الگوی شلوغ */
         .table {
             width: 95%;
             max-width: 320px;
@@ -290,9 +291,9 @@
             position: relative;
             clip-path: polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%);
             background:
-                var(--pattern),
-                radial-gradient(circle at center, var(--bg-2) 0%, var(--bg-1) 60%, var(--bg-0) 100%);
-            background-size: 40px 40px, cover;
+                radial-gradient(circle at center, transparent 0%, transparent 38%, rgba(224,165,48,0.35) 39%, rgba(224,165,48,0.35) 40%, transparent 41%),
+                radial-gradient(circle at center, transparent 0%, transparent 62%, rgba(47,182,168,0.28) 63%, rgba(47,182,168,0.28) 64%, transparent 65%),
+                radial-gradient(circle at center, var(--bg-2) 0%, var(--bg-1) 55%, var(--bg-0) 100%);
             box-shadow:
                 inset 0 0 46px rgba(0,0,0,0.55),
                 inset 0 0 0 1px rgba(255,255,255,0.05),
@@ -305,9 +306,9 @@
         .table::before {
             content: '';
             position: absolute;
-            inset: 12%;
-            clip-path: polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%);
-            border: 1.5px dashed rgba(224,165,48,0.25);
+            inset: 40%;
+            border-radius: 50%;
+            background: radial-gradient(circle at center, rgba(224,165,48,0.14), transparent 70%);
             pointer-events: none;
         }
 
@@ -457,20 +458,22 @@
         .table-card { position: relative; }
         .necessary-tag {
             position: absolute;
-            top: -9px;
-            left: 50%;
-            transform: translateX(-50%);
+            top: -6px;
+            right: -6px;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             background: linear-gradient(135deg, var(--saffron-2), var(--saffron-deep));
             color: #2b1a05;
-            font-size: 0.62rem;
+            font-size: 0.68rem;
             font-weight: 800;
-            padding: 1px 7px;
-            border-radius: 7px;
-            white-space: nowrap;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.45), 0 0 0 2px var(--bg-0);
             z-index: 2;
         }
-        .last-trick-row .necessary-tag { top: -6px; }
+        .last-trick-row .necessary-tag { top: -4px; right: -4px; }
 
         .table-card {
             width: 68px;
@@ -621,10 +624,7 @@
         .start-screen {
             position: fixed;
             inset: 0;
-            background:
-                var(--pattern),
-                radial-gradient(ellipse 120% 80% at 50% 15%, var(--bg-2) 0%, var(--bg-0) 70%);
-            background-size: 56px 56px, cover;
+            background: radial-gradient(ellipse 120% 80% at 50% 15%, var(--bg-2) 0%, var(--bg-0) 70%);
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -801,6 +801,24 @@
         }
         .last-trick-name { font-weight: 700; font-size: 0.95rem; color: var(--ink-muted); }
         .last-trick-row.winner .last-trick-name { color: var(--saffron-2); }
+
+        .analysis-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 8px 10px;
+            margin-top: -4px;
+            font-size: 0.85rem;
+            color: var(--ink-muted);
+            background: rgba(0,0,0,0.14);
+            border-radius: var(--radius-sm);
+        }
+        .analysis-row.good { color: var(--turquoise); font-weight: 700; }
+        .analysis-row.good i { color: var(--turquoise); }
+        .analysis-row .table-card { width: 46px; height: 62px; }
+        .analysis-row .table-card .card-rank { font-size: 0.6rem; }
+        .analysis-row .table-card .card-suit-center { font-size: 0.95rem; }
         .last-trick-row .card { cursor: default; }
 
         @media (max-height: 700px) {
@@ -989,7 +1007,7 @@
 
     <div class="modal" id="lastTrickModal">
         <div class="modal-box">
-            <h2 class="modal-title"><i class="fas fa-clock-rotate-left"></i> دست قبلی</h2>
+            <h2 class="modal-title"><i class="fas fa-clock-rotate-left"></i> دست قبلی و آنالیز</h2>
             <div class="last-trick-list" id="lastTrickCards"></div>
             <button class="btn secondary" id="closeLastTrick">بستن</button>
         </div>
@@ -1261,17 +1279,18 @@
 
         async function playCardHuman(c) {
             G.processing = true;
-            doPlayCard(1, c);
+            const recommended = aiPick(1);
+            await doPlayCard(1, c, recommended);
             await nextTurn();
         }
 
-        function doPlayCard(pid, c) {
+        async function doPlayCard(pid, c, recommended = null) {
             sfxCardPlay();
             const h = G.players[pid].hand;
             const i = h.findIndex(x => x.suit === c.suit && x.rank === c.rank);
             if (i > -1) h.splice(i, 1);
             const necessary = G.trick.length === 0 && G.trumpMode === 'normal' && c.suit === G.trump;
-            G.trick.push({ player: pid, card: c, necessary });
+            G.trick.push({ player: pid, card: c, necessary, recommended });
             if (G.trick.length === 1) G.leadSuit = c.suit;
             G.memory.played.push({ ...c });
             if (c.rank === 'A') G.memory.aces[c.suit] = true;
@@ -1282,19 +1301,17 @@
             }
             renderTableCard(pid, c, necessary);
             if (pid === 1) renderHand();
+            if (necessary) {
+                showPopup(`${G.players[pid].name}: لازم!`);
+                await delay(900);
+                hidePopup();
+            }
         }
 
         function renderTableCard(pid, c, necessary = false) {
             const slot = $(`slot${pid}`);
             slot.innerHTML = '';
-            const cardEl = createCard(c, 'table-card');
-            if (necessary) {
-                const tag = document.createElement('span');
-                tag.className = 'necessary-tag';
-                tag.textContent = 'لازم';
-                cardEl.appendChild(tag);
-            }
-            slot.appendChild(cardEl);
+            slot.appendChild(createCard(c, 'table-card'));
         }
 
         function clearTable() {
@@ -1444,19 +1461,24 @@
             // ---------- شروع یک دست جدید ----------
             if (lead) {
                 const nonT = hi.filter(c => mode !== 'normal' || c.suit !== trump);
+                const myTrumps = hi.filter(c => mode === 'normal' && c.suit === trump);
 
-                if (mode === 'normal' && trump) {
-                    const myTrumps = hi.filter(c => c.suit === trump);
+                // ۱) حکم لازمِ استراتژیک: فقط وقتی واقعا برتری دارم (حریف‌ها بی‌حکم‌ان یا رأس حکم دستمه)
+                if (mode === 'normal' && trump && myTrumps.length) {
                     const opps = opponentsOf(pid);
                     const bothOppVoidTrump = opps.every(p => (G.memory.voids[p] || []).includes(trump));
                     const topRun = topTrumpRunLength(pid, trump, mode);
-                    if (myTrumps.length && (bothOppVoidTrump || topRun >= 3)) {
-                        // یا حریف‌ها حکم ندارن، یا رأس حکم پشت‌سرهم دست خودمه -> حکم لازم می‌زنم تا حکم‌های حریف رو بکشم بیرون
+                    if (bothOppVoidTrump || topRun >= 3) {
                         return myTrumps[0];
                     }
                 }
 
-                // بین کارت‌های غیرحکم، فقط اونایی که طبق شمارش کارت قطعا امن/برنده‌ن رو در نظر می‌گیرم
+                // ۲) اگه اصلا کارت غیرحکمی تو دستم نمونده (فقط حکم دارم)، مجبورم حکم بزنم
+                if (!nonT.length) {
+                    return myTrumps.length ? myTrumps[myTrumps.length - 1] : hi[Math.floor(hi.length / 2)];
+                }
+
+                // ۳) لید امن و تضمینی (طبق شمارش کارت)
                 const safeLeads = nonT.filter(c => isSecureWin(pid, c, mode, trump));
                 if (safeLeads.length) {
                     const ace = safeLeads.find(c => c.rank === 'A');
@@ -1464,8 +1486,7 @@
                     return safeLeads.sort((a, b) => cardVal(b, mode) - cardVal(a, mode))[0];
                 }
 
-                // جواب یار: اگه خودم لید امنی ندارم ولی یار قبلا سیگنال قوی داده که یه خال دستش خوبه،
-                // همون خال رو (با کمترین کارتم) دوباره لید می‌زنم تا یار با کارت بالاش ببره
+                // ۴) جواب یار: اگه یار قبلا سیگنال قوی داده که یه خال دستش خوبه، همون خال رو (با کمترین کارتم) دوباره لید می‌زنم
                 let signalSuit = null, signalWeight = 1; // آستانه: فقط سیگنال‌های نسبتا معتبر
                 for (const s of SUITS) {
                     if (mode === 'normal' && s === trump) continue;
@@ -1478,8 +1499,7 @@
                     if (suitCardsAsc.length) return suitCardsAsc[0];
                 }
 
-                // هیچ لید امنی ندارم و توان کت کردن هم ندارم (وگرنه بالاتر برمی‌گشتم)؛
-                // بهترین کار اینه از خالی که کمتر دارم شروع کنم تا زودتر ازش خالی بشم (برای برش‌های بعدی)
+                // ۵) خالی کردن خالِ کم (۱ یا ۲ کارت) تا برای برش‌های بعدی آماده بشم
                 const suitCounts = {};
                 for (const c of G.players[pid].hand) {
                     if (mode === 'normal' && c.suit === trump) continue;
@@ -1488,17 +1508,11 @@
                 const shortSuits = Object.keys(suitCounts).filter(s => suitCounts[s] > 0 && suitCounts[s] <= 2).sort((a, b) => suitCounts[a] - suitCounts[b]);
                 if (shortSuits.length) {
                     const suitCards = nonT.filter(c => c.suit === shortSuits[0]);
-                    if (suitCards.length) return suitCards[0]; // nonT نزولی‌ست، اولی بزرگ‌ترین همون خاله
+                    if (suitCards.length) return suitCards[0];
                 }
 
-                // هیچ کارت امنی ندارم؛ اگه حکم دارم، حکم لازم اجباری می‌زنم (به امید دست قوی یار)
-                if (mode === 'normal' && trump) {
-                    const myTrumps = hi.filter(c => c.suit === trump);
-                    if (myTrumps.length) return myTrumps[myTrumps.length - 1];
-                }
-
-                if (nonT.length) return nonT[Math.floor(nonT.length / 2)];
-                return hi[Math.floor(hi.length / 2)];
+                // ۶) پیش‌فرض عادی: بهترین کارت غیرحکمی که دارم رو می‌زنم (نه حکم لازمِ بی‌دلیل)
+                return nonT[0];
             }
 
             const win = trickWinner(G.trick, G.leadSuit, mode, trump);
@@ -1582,7 +1596,7 @@
             updateUI();
             if (G.current !== 1) {
                 await delay(550);
-                doPlayCard(G.current, aiPick(G.current));
+                await doPlayCard(G.current, aiPick(G.current));
                 await nextTurn();
             } else {
                 G.processing = false;
@@ -1594,7 +1608,7 @@
         async function endTrick() {
             G.phase = 'trickEnd';
             const w = trickWinner(G.trick, G.leadSuit, G.trumpMode, G.trump);
-            G.lastTrick = { entries: G.trick.map(t => ({ player: t.player, card: t.card, necessary: t.necessary })), winner: w.player };
+            G.lastTrick = { entries: G.trick.map(t => ({ player: t.player, card: t.card, necessary: t.necessary, recommended: t.recommended })), winner: w.player };
 
             // ثبت جواب یار: سیگنال‌های نامستقیم از نحوه‌ی بازی هرکس
             const leaderEntry = G.trick[0];
@@ -1810,7 +1824,7 @@
             if (G.current !== 1) {
                 G.processing = true;
                 await delay(550);
-                doPlayCard(G.current, aiPick(G.current));
+                await doPlayCard(G.current, aiPick(G.current));
                 await nextTurn();
             }
         }
@@ -1932,7 +1946,7 @@
             if (G.current !== 1 && G.phase === 'play') {
                 G.processing = true;
                 await delay(550);
-                doPlayCard(G.current, aiPick(G.current));
+                await doPlayCard(G.current, aiPick(G.current));
                 await nextTurn();
             }
         }
@@ -1954,11 +1968,30 @@
                 if (entry.necessary) {
                     const tag = document.createElement('span');
                     tag.className = 'necessary-tag';
-                    tag.textContent = 'لازم';
+                    tag.textContent = 'ل';
+                    tag.title = 'حکم لازم';
                     cardEl.appendChild(tag);
                 }
                 row.appendChild(cardEl);
                 cont.appendChild(row);
+
+                // آنالیز فقط برای بازی خودتون: مقایسه با پیشنهاد هوش مصنوعی
+                if (pid === 1 && entry.recommended) {
+                    const analysisRow = document.createElement('div');
+                    analysisRow.className = 'analysis-row';
+                    const sameCard = entry.recommended.suit === entry.card.suit && entry.recommended.rank === entry.card.rank;
+                    if (sameCard) {
+                        analysisRow.innerHTML = `<i class="fas fa-circle-check"></i> بهترین بازی ممکن رو زدید`;
+                        analysisRow.classList.add('good');
+                    } else {
+                        const recEl = createCard(entry.recommended, 'table-card');
+                        const label = document.createElement('span');
+                        label.textContent = 'پیشنهاد هوش مصنوعی:';
+                        analysisRow.appendChild(label);
+                        analysisRow.appendChild(recEl);
+                    }
+                    cont.appendChild(analysisRow);
+                }
             }
             $('lastTrickModal').classList.add('show');
         }
